@@ -16,7 +16,7 @@ def index():
 def new_player():
   query = db.select(Club)
   clubs = db.session.scalars(query).all()
-
+ 
   if request.method == 'POST':
     name = request.form['name']
     position = request.form['position']
@@ -25,6 +25,11 @@ def new_player():
     squad_no = int(request.form['squad_no'])
     img = request.form['img']
     club_id = int(request.form['club_id'])
+
+    if position == 'Goalkeeper':
+      clean_sheets = int(request.form.get('clean_sheets', 0))
+    else:
+      clean_sheets = None
     
     player = Player(name=name, 
                     position=position, 
@@ -32,7 +37,8 @@ def new_player():
                     goals=goals , 
                     squad_no=squad_no, 
                     img=img, 
-                    club_id=club_id)
+                    club_id=club_id,
+                    clean_sheets=clean_sheets)
     db.session.add(player)
     db.session.commit()
 
@@ -41,7 +47,7 @@ def new_player():
   
   return render_template('players/new_player.html',
                           title='New Player Page',
-                          clubs=clubs)
+                          clubs=clubs,)
 
 @player_bp.route('/search', methods=['GET', 'POST'])
 def search_player():
@@ -75,6 +81,11 @@ def update_player(id):
     squad_no = int(request.form['squad_no'])
     img = request.form['img']
     club_id = int(request.form['club_id'])
+
+    if position == 'Goalkeeper':
+      player.clean_sheets = int(request.form.get('clean_sheets', 0))
+    else:
+      player.clean_sheets = None
     
     player.name = name
     player.position = position
@@ -83,7 +94,7 @@ def update_player(id):
     player.squad_no = squad_no
     player.img = img
     player.club_id = club_id
-    
+
     db.session.add(player)
     db.session.commit()
 
